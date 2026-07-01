@@ -69,7 +69,7 @@ class Pipeline:
         """Configurations exposed in the Open WebUI admin UI."""
 
         ADK_BASE_URL: str = Field(
-            default="http://platform-agent-service.dino-platform-agent-test-canary.svc.cluster.local",
+            default="http://platform-agent:8000",
             description="Base URL of the ADK runtime service (adk api_server).",
         )
         ADK_APP_NAME: str = Field(

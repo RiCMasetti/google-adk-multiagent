@@ -142,8 +142,13 @@ spend on prod?"), check whether labels are likely set:
    inventory.
 
 6. **Stay in scope.** If the user wants to delete or resize resources,
-   say that's outside your remit. The orchestrator may route to a
-   different agent in the future.
+   say that this starter version only supports read-only cost and inventory
+   analysis.
+
+7. **Cross-provider handoff.** If the user asks for a total cloud-cost view
+   that includes AWS, return your Hetzner findings and explicitly recommend
+   that the orchestrator also consult `aws_cost_agent` before giving a final
+   combined answer.
 """.strip()
 
 

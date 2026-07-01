@@ -300,19 +300,21 @@ def _get_primary_region() -> str:
 
 def make_model(
     model_env_var: str | None = None,
-    default_model: str = "gemini-2.5-pro",
+    default_vertex_model: str = "gemini-2.5-pro",
+    default_bedrock_model: str = "eu.anthropic.claude-sonnet-4-6",
     num_retries: int = 2,
 ) -> LiteLlm:
     """Build the configured LLM backend."""
-    provider = os.environ.get("LLM_PROVIDER", "vertex_ai").strip().lower()
+    provider = os.environ.get("LLM_PROVIDER", "bedrock").strip().lower()
     if provider in ("bedrock", "aws_bedrock"):
         return make_bedrock_model(
             model_env_var=model_env_var or "BEDROCK_MODEL_ID",
+            default_model=default_bedrock_model,
         )
     if provider in ("vertex", "vertex_ai", "gemini"):
         return make_vertex_model(
             model_env_var=model_env_var or "GEMINI_MODEL",
-            default_model=default_model,
+            default_model=default_vertex_model,
             num_retries=num_retries,
         )
     raise ValueError(
@@ -323,7 +325,7 @@ def make_model(
 
 def make_bedrock_model(
     model_env_var: str = "BEDROCK_MODEL_ID",
-    default_model: str = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    default_model: str = "eu.anthropic.claude-sonnet-4-6",
 ) -> LiteLlm:
     """
     Build a Bedrock Claude model through LiteLLM.
@@ -336,7 +338,12 @@ def make_bedrock_model(
     Region is controlled by AWS_REGION_NAME. For EU residency, use an EU
     source region such as eu-central-1 and the `eu.` inference profile.
     """
-    model_id = _env_first([model_env_var, "BEDROCK_MODEL_ID"], default_model)
+    fallback_names = (
+        ["BEDROCK_MODEL_ID"]
+        if model_env_var == "BEDROCK_MODEL_ID"
+        else [model_env_var]
+    )
+    model_id = _env_first(fallback_names, default_model)
     aws_region = os.environ.get("AWS_REGION_NAME") or os.environ.get("AWS_DEFAULT_REGION")
     api_key = os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
 
@@ -431,12 +438,19 @@ def make_vertex_model(
     )
 
 
-# Pre-built role models. If ORCHESTRATOR_MODEL / SUB_AGENT_MODEL are unset,
-# they fall back to the provider-specific defaults:
-#   - Vertex AI: GEMINI_MODEL
-#   - Bedrock: BEDROCK_MODEL_ID
-ORCHESTRATOR_MODEL = make_model(model_env_var="ORCHESTRATOR_MODEL")
-SUB_AGENT_MODEL = make_model(model_env_var="SUB_AGENT_MODEL")
+# Pre-built role models. In Bedrock mode, defaults are role-specific:
+#   - orchestrator: Claude Sonnet 4.6
+#   - sub-agents: Claude Haiku 4.5
+# In Vertex mode, ORCHESTRATOR_MODEL and SUB_AGENT_MODEL should be Gemini model
+# names; if unset they fall back to GEMINI_MODEL.
+ORCHESTRATOR_MODEL = make_model(
+    model_env_var="ORCHESTRATOR_MODEL",
+    default_bedrock_model="eu.anthropic.claude-sonnet-4-6",
+)
+SUB_AGENT_MODEL = make_model(
+    model_env_var="SUB_AGENT_MODEL",
+    default_bedrock_model="eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+)
 
 # Backward-compatible alias for older imports.
 DEFAULT_MODEL = SUB_AGENT_MODEL

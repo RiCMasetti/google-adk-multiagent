@@ -3,3 +3,4 @@
 /**/**/google-application-credentials.json
 credentials
 kubeconfig
+cluster-token-auth.txt

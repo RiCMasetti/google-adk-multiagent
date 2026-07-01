@@ -3,7 +3,8 @@
 
 # Ignore Google Cloud credentials
 /**/**/google-application-credentials.json
-/**/**/google-application-credentials-tina.json
+
+cluster-token-auth.txt
 
 .venv
 .adk

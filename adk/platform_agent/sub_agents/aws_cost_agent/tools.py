@@ -15,10 +15,10 @@ Authentication:
   transparently — no custom credential code here.
 
 Multi-account:
-  The agent runs from the management account (`bullfinch-root-master`), so
+  The agent runs from the management account (`RiCMasetti-root-master`), so
   Cost Explorer returns consolidated data for the whole organisation. Linked
   accounts come back as 12-digit IDs; we rewrite them to friendly aliases
-  before returning to the LLM, so it sees `bullfinch-prod-apollo` instead of
+  before returning to the LLM, so it sees `RiCMasetti-prod-apollo` instead of
   `123456789012`.
 """
 from __future__ import annotations
@@ -50,15 +50,15 @@ from botocore.exceptions import BotoCoreError, ClientError
 # missing entries quickly and can add them).
 
 _DEFAULT_ALIASES: dict[str, str] = {
-    # "000000000001": "bullfinch-root-master",
-    # "000000000002": "bullfinch-aws-docshare",
-    # "000000000003": "bullfinch-aws-sharedservices",
-    # "000000000004": "bullfinch-aws-warehouse",
-    # "000000000005": "bullfinch-dev-apollo",
-    # "000000000006": "bullfinch-prod-apollo",
-    # "000000000007": "bullfinch-security-logarchive",
-    # "000000000008": "bullfinch-security-audit",
-    # "000000000009": "bullfinch-aws-staging",
+    # "000000000001": "RiCMasetti-root-master",
+    # "000000000002": "RiCMasetti-aws-docshare",
+    # "000000000003": "RiCMasetti-aws-sharedservices",
+    # "000000000004": "RiCMasetti-aws-warehouse",
+    # "000000000005": "RiCMasetti-dev-apollo",
+    # "000000000006": "RiCMasetti-prod-apollo",
+    # "000000000007": "RiCMasetti-security-logarchive",
+    # "000000000008": "RiCMasetti-security-audit",
+    # "000000000009": "RiCMasetti-aws-staging",
 }
 
 

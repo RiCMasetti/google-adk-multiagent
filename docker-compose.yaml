@@ -4,13 +4,13 @@ services:
     ports:
       - "3000:8080"
     environment:
-      - WEBUI_NAME=Finch AI Agents Crew
+      - WEBUI_NAME=Multi Agent Crew
       # GOOGLE OAuth
       - ENABLE_OAUTH_SIGNUP=true
       - OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - OAUTH_ALLOWED_DOMAINS=bullfinch-infrastructure.com,bullfinch.com
+      - OAUTH_ALLOWED_DOMAINS=${OAUTH_ALLOWED_DOMAINS}
       # Optional but recommended
       - OAUTH_PROVIDER_NAME=Google
       - DEFAULT_USER_ROLE=user
@@ -19,9 +19,8 @@ services:
       - ENABLE_SIGNUP=true
     volumes:
       - open-webui:/app/backend/data
-      # - ./openwebui-brand/custom.css:/app/backend/open_webui/static/custom.css:ro
-      - ./openwebui-brand/logo.png:/app/backend/open_webui/static/logo.png:ro
-      - ./openwebui-brand/favicon.png:/app/backend/open_webui/static/favicon.png:ro
+      - ./openwebui-brand/logo.png:/app/backend/open_webui/static/logo.png
+      - ./openwebui-brand/favicon.png:/app/backend/open_webui/static/favicon.png
     networks:
       - platform
   pipeilnes:
@@ -30,6 +29,7 @@ services:
       - "9099:9099"
     volumes:
       - pipelines:/app/pipelines
+      - ./openweb-pipe/agent-pipeline.py:/app/pipelines/agent-pipeline.py:ro
     networks:
       - platform
 
@@ -41,12 +41,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-adk_sessions}
       POSTGRES_USER: ${POSTGRES_USER:-adk}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      # Tuning leggero per uso single-instance — non hai bisogno di
-      # configurazioni HA. Se domani metti più replica del platform-agent,
-      # rivedi shared_buffers e max_connections.
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-adk} -d ${POSTGRES_DB:-adk_sessions}"]
       interval: 10s
@@ -68,9 +65,6 @@ services:
       - ~/.aws:/root/.aws:ro
       - ~/certs:/opt/aws-signin-helper:ro
       - ./reports:/app/reports
-      - ./kubeconfigs:/etc/kube:ro
-      - ./action_logs:/app/action_logs
-      - ./ssh-keys:/etc/ssh-keys:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -79,54 +73,21 @@ services:
       - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
       - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
-      - LLM_PROVIDER=${LLM_PROVIDER:-vertex_ai}
+      - LLM_PROVIDER=${LLM_PROVIDER:-bedrock}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
       - ORCHESTRATOR_MODEL=${ORCHESTRATOR_MODEL:-}
       - SUB_AGENT_MODEL=${SUB_AGENT_MODEL:-}
       - FALLBACK_REGIONS=europe-west4,europe-west9,europe-west3,europe-central1
-      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID:-eu.anthropic.claude-sonnet-4-5-20250929-v1:0}
+      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID:-eu.anthropic.claude-sonnet-4-6}
       - AWS_BEARER_TOKEN_BEDROCK=${AWS_BEARER_TOKEN_BEDROCK:-}
-      - GITLAB_TOKEN=${GITLAB_TOKEN}
-      - GITLAB_URL=${GITLAB_URL}
-      - GITLAB_REPO_URL=${GITLAB_REPO_URL}
-      - DD_API_KEY=${DD_API_KEY}
-      - DD_APPLICATION_KEY=${DD_APPLICATION_KEY}
-      - TINA_MCP_URL=${TINA_MCP_URL:-}
-      - TINA_MCP_ENV=${TINA_MCP_ENV:-canary}
-      - TINA_MCP_INTERNAL=${TINA_MCP_INTERNAL:-false}
-      - TINA_MCP_TIMEOUT_SECONDS=${TINA_MCP_TIMEOUT_SECONDS:-30}
-      - TINA_MCP_SSE_READ_TIMEOUT_SECONDS=${TINA_MCP_SSE_READ_TIMEOUT_SECONDS:-300}
-      - TINA_MCP_BEARER_TOKEN=${TINA_MCP_BEARER_TOKEN:-}
-      - TINA_COGNITO_AUTH_FLOW=${TINA_COGNITO_AUTH_FLOW:-USER_PASSWORD_AUTH}
-      - TINA_COGNITO_CLIENT_ID=${TINA_COGNITO_CLIENT_ID:-}
-      - TINA_COGNITO_CLIENT_SECRET=${TINA_COGNITO_CLIENT_SECRET:-}
-      - TINA_COGNITO_USER_POOL_ID=${TINA_COGNITO_USER_POOL_ID:-}
-      - TINA_COGNITO_REGION=${TINA_COGNITO_REGION:-}
-      - TINA_COGNITO_USERNAME=${TINA_COGNITO_USERNAME:-}
-      - TINA_COGNITO_PASSWORD=${TINA_COGNITO_PASSWORD:-}
-      - TINA_COGNITO_AUTH_ENDPOINT=${TINA_COGNITO_AUTH_ENDPOINT:-}
-      - TINA_COGNITO_TOKEN_ENDPOINT=${TINA_COGNITO_TOKEN_ENDPOINT:-}
-      - TINA_COGNITO_JWKS_URL=${TINA_COGNITO_JWKS_URL:-}
-      - TINA_COGNITO_TOKEN_TYPE=${TINA_COGNITO_TOKEN_TYPE:-access_token}
-      - TINA_COGNITO_SCOPES=${TINA_COGNITO_SCOPES:-}
-      - TINA_COGNITO_TOKEN_REFRESH_MARGIN_SECONDS=${TINA_COGNITO_TOKEN_REFRESH_MARGIN_SECONDS:-300}
       - AWS_PROFILE=${AWS_PROFILE}
       - AWS_ACCOUNT_ALIASES=${AWS_ACCOUNT_ALIASES}
       - AWS_REGION_NAME=${AWS_REGION_NAME:-eu-central-1}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-eu-central-1}
       - HETZNER_TOKEN=${HETZNER_TOKEN}
-      - KUBE_CLUSTERS=helios-dev=/etc/kube/helios-dev.yaml,bullfinch-mcp=/etc/kube/bullfinch-mcp.yaml,helios-prod=/etc/kube/helios-prod.yaml,rancher-dev=/etc/kube/rancher-dev.yaml,rancher-prod=/etc/kube/rancher-prod.yaml
-      - KUBE_MANAGEMENT_CLUSTERS=rancher-dev,rancher-prod
-      - ACTION_LOG_DIR=/app/action_logs
       - REPORTS_DIR=/app/reports
-      - SSH_USER=root
-      - SSH_PRIVATE_KEY_PATH=/etc/ssh-keys/platform-agent
-      - SSH_KNOWN_HOSTS_PATH=/etc/ssh-keys/known_hosts
-      - SHELL_TIMEOUT=300
+      - AGENT_REPORTS_DIR=/app/reports
       - AGENT_BASE_DIR=/app
-      - ANSIBLE_PROJECT_PATH=bullfinch-capital/ops/ansible
-      - ANSIBLE_REPO_REF=main
-      - ANSIBLE_JOB_CATALOG_PATH=job.yml
       - PYTHONPATH=/app
       # Rate limiting: seconds between LLM calls (increase if hitting 429s)
       - LLM_CALL_DELAY=${LLM_CALL_DELAY:-3.0}
@@ -154,6 +115,7 @@ services:
 volumes:
   open-webui:
   pipelines:
+  postgres-data:
 
 networks:
   platform:

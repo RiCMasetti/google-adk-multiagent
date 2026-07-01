@@ -14,7 +14,6 @@ COPY requirements-lock.txt .
 RUN pip install --no-cache-dir -r requirements.txt -c requirements-lock.txt
  
 COPY platform_agent ./platform_agent
-COPY tina_agent ./tina_agent
 COPY common ./common
  
 # Sessions directory must exist before adk_api_server starts.
