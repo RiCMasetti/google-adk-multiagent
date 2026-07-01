@@ -34,7 +34,7 @@ _TOOL_ACTIVITY_LABELS = {
     "list_workloads_in_cluster": "Listing Kubernetes workloads",
     "get_workload_observability_tags": "Resolving Kubernetes observability tags",
     "resolve_hostname_to_workload": "Resolving hostname to Kubernetes workload",
-    # Datadog / GitLab / cost / actions
+    # GitLab / cost / actions
     "list_recent_pipelines": "Checking recent GitLab pipelines",
     "get_pipeline_status": "Reading GitLab pipeline status",
     "trigger_deployment_pipeline": "Preparing GitLab deployment pipeline",
@@ -78,11 +78,11 @@ class Pipeline:
         )
         REQUEST_TIMEOUT_SECONDS: float = Field(
             default=600.0,
-            description="Total timeout for an ADK request. High because tools can be long-running (e.g., GitLab pipelines, large Datadog queries).",
+            description="Total timeout for an ADK request. High because tools can be long-running.",
         )
         SHOW_TOOL_ACTIVITY: bool = Field(
             default=True,
-            description="Shows an indication in the chat when a tool is invoked (e.g., '🔧 Querying Datadog...').",
+            description="Shows an indication in the chat when a tool is invoked.",
         )
         SHOW_REQUEST_PROGRESS: bool = Field(
             default=True,

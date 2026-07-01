@@ -261,5 +261,5 @@ Refresh it only as part of a deliberate dependency update.
 - Keep `.env` and cloud credentials out of git.
 - Mount AWS credentials and GCP service account files at runtime.
 - Use read-only IAM/API tokens for cost analysis whenever possible.
-- This starter version has no deployment, reboot, Kubernetes mutation, GitLab
-  pipeline trigger, or Datadog querying capability.
+- This starter version has no deployment, reboot, Kubernetes mutation, or
+  GitLab pipeline trigger capability.
