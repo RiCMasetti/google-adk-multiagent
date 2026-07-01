@@ -1,0 +1,27 @@
+# Ignore environment files
+.env
+
+# Ignore Google Cloud credentials
+/**/**/google-application-credentials.json
+/**/**/google-application-credentials-tina.json
+
+.venv
+.adk
+.DS_Store
+kubeconfigs
+cluster-token-auth.txt
+/**/**/.cache
+/**/**/.pytest_cache
+/**/**/.loop_status
+/**/**/.venv
+/**/**/.npm
+/**/**/node_modules
+/**/**/dist
+/**/**/build
+/**/**/out
+/**/**/target
+/**/**/__pycache__
+# contract_platform_agents/workspace/*
+/**/**/*.jsonl
+postgres-data
+ssh-keys
