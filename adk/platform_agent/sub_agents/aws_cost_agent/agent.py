@@ -2,8 +2,8 @@
 AWS Cost sub-agent.
 
 Read-only specialist for AWS cost analysis. Talks to Cost Explorer via boto3
-using the management account's IAM Roles Anywhere profile. No infrastructure
-changes — pure observation, comparison, forecasting, and reporting.
+using the standard boto3 credential chain. No infrastructure changes: pure
+observation, comparison, forecasting, and reporting.
 """
 from google.adk.agents import LlmAgent
 
@@ -31,21 +31,9 @@ You do not change infrastructure, modify budgets, or trigger anything.
 
 ## Account context
 
-The organisation has these linked accounts (rough purpose in parentheses):
-
-  - RiCMasetti-root-master         (org management)
-  - RiCMasetti-aws-docshare        (document sharing)
-  - RiCMasetti-aws-sharedservices  (shared services)
-  - RiCMasetti-aws-warehouse       (data warehouse)
-  - RiCMasetti-dev-apollo          (dev environment)
-  - RiCMasetti-prod-apollo         (production environment)
-  - RiCMasetti-security-logarchive (centralised logs)
-  - RiCMasetti-security-audit      (audit / security tooling)
-  - RiCMasetti-aws-staging         (staging environment)
-
-Tool responses already rewrite 12-digit account IDs to these aliases.
-If you ever see a raw 12-digit ID in tool output, surface it to the user
-as-is and note that it is unmapped — that's a signal to update the alias map.
+Tool responses can rewrite 12-digit AWS account IDs to aliases when
+`AWS_ACCOUNT_ALIASES` is configured. If you see a raw 12-digit ID in tool
+output, surface it to the user as-is and note that it is unmapped.
 
 ## Tool selection guidance
 

@@ -8,18 +8,16 @@ Why native instead of wrapping the official AWS Cost MCP server:
   - One less moving part in the deployment.
 
 Authentication:
-  Uses the standard boto3 credential chain. In Kubernetes we run with IAM
-  Roles Anywhere (the `AWS_PROFILE` env var points to a profile configured
-  for the role); locally we share `~/.aws` and the certs directory into the
-  container via docker-compose volumes. boto3 picks up everything
-  transparently — no custom credential code here.
+  Uses the standard boto3 credential chain. For local Compose, `~/.aws` and
+  the optional certs directory are mounted into the container. boto3 picks up
+  profiles, environment credentials, or role-based credentials transparently;
+  no custom credential code is needed here.
 
 Multi-account:
-  The agent runs from the management account (`RiCMasetti-root-master`), so
-  Cost Explorer returns consolidated data for the whole organisation. Linked
-  accounts come back as 12-digit IDs; we rewrite them to friendly aliases
-  before returning to the LLM, so it sees `RiCMasetti-prod-apollo` instead of
-  `123456789012`.
+  When credentials belong to an AWS Organizations management account, Cost
+  Explorer can return consolidated data for linked accounts. Linked accounts
+  come back as 12-digit IDs; optional aliases rewrite those IDs before
+  returning results to the LLM.
 """
 from __future__ import annotations
 
@@ -38,34 +36,16 @@ from botocore.exceptions import BotoCoreError, ClientError
 # Account alias map
 # ---------------------------------------------------------------------------
 #
-# Default lookup table: 12-digit account ID -> human-readable alias.
-# Kept in code so the agent works out-of-the-box. Override at deploy time
-# via the AWS_ACCOUNT_ALIASES env var, format:
-#     "111111111111=root-master,222222222222=dev-apollo,..."
-# Env var values, when present, completely replace the defaults.
-#
-# Account IDs below are PLACEHOLDERS — replace with your real IDs before
-# committing. Cost Explorer will return real IDs in API responses; any ID
-# not in this map will appear unchanged in the output (so you'll notice
-# missing entries quickly and can add them).
-
-_DEFAULT_ALIASES: dict[str, str] = {
-    # "000000000001": "RiCMasetti-root-master",
-    # "000000000002": "RiCMasetti-aws-docshare",
-    # "000000000003": "RiCMasetti-aws-sharedservices",
-    # "000000000004": "RiCMasetti-aws-warehouse",
-    # "000000000005": "RiCMasetti-dev-apollo",
-    # "000000000006": "RiCMasetti-prod-apollo",
-    # "000000000007": "RiCMasetti-security-logarchive",
-    # "000000000008": "RiCMasetti-security-audit",
-    # "000000000009": "RiCMasetti-aws-staging",
-}
+# Optional lookup table: 12-digit account ID -> human-readable alias.
+# Configure via AWS_ACCOUNT_ALIASES, format:
+#     "111111111111=management,222222222222=production,..."
+# Cost Explorer returns any unmapped account ID unchanged.
 
 
 def _load_account_aliases() -> dict[str, str]:
     raw = os.environ.get("AWS_ACCOUNT_ALIASES", "").strip()
     if not raw:
-        return dict(_DEFAULT_ALIASES)
+        return {}
     aliases: dict[str, str] = {}
     for pair in raw.split(","):
         if "=" not in pair:
@@ -74,7 +54,7 @@ def _load_account_aliases() -> dict[str, str]:
         k, v = k.strip(), v.strip()
         if k and v:
             aliases[k] = v
-    return aliases or dict(_DEFAULT_ALIASES)
+    return aliases
 
 
 _ACCOUNT_ALIASES = _load_account_aliases()

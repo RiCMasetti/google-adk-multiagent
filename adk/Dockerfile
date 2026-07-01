@@ -1,17 +1,12 @@
 FROM python:3.12-slim
 
-## For any intentional dependency upgrade, refresh requirements-lock.txt
-# cd adk
-# pip install -r requirements.txt --upgrade
-# pip freeze > requirements-lock.txt
-## Then rebuild and test:
+## For any intentional dependency upgrade, rebuild and test:
 # docker compose build platform-agent
 # docker compose up -d platform-agent
 
 WORKDIR /app
 COPY requirements.txt .
-COPY requirements-lock.txt .
-RUN pip install --no-cache-dir -r requirements.txt -c requirements-lock.txt
+RUN pip install --no-cache-dir -r requirements.txt
  
 COPY platform_agent ./platform_agent
 COPY common ./common

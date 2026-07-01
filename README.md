@@ -131,7 +131,23 @@ Runtime/session behavior:
 
 ## Local Run
 
-The full local stack is managed through Compose:
+The full local stack is managed through Compose.
+
+First-time setup:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set at least:
+
+- `POSTGRES_PASSWORD`
+- Bedrock credentials through `AWS_PROFILE`, `AWS_REGION_NAME`, and either
+  local `~/.aws` credentials or `AWS_BEARER_TOKEN_BEDROCK`
+- `HETZNER_TOKEN` when using Hetzner cost tools
+- Google OAuth variables if Open WebUI authentication should use Google
+
+Then start the stack:
 
 ```bash
 docker compose up -d
@@ -140,6 +156,15 @@ docker compose up -d
 Open WebUI is available at `http://localhost:3000`. The ADK API server is
 available at `http://localhost:8000`, and the Open WebUI Pipelines service is
 available at `http://localhost:9099`.
+
+Check service state:
+
+```bash
+docker compose ps
+```
+
+The Open WebUI pipeline is mounted automatically by Compose; there is no manual
+pipeline upload step for local development.
 
 For ADK-only local development:
 
@@ -253,13 +278,20 @@ Important direct runtime dependencies:
 - `asyncpg` and `sqlalchemy` - Postgres-backed ADK sessions.
 - `google-cloud-aiplatform` and `google-auth` - Vertex AI auth.
 
-`adk/requirements-lock.txt` captures a previously validated package set.
-Refresh it only as part of a deliberate dependency update.
+Dependencies are declared in `adk/requirements.txt`. This starter project does
+not currently maintain a lock file; if you need fully reproducible deployments,
+generate and commit one as part of a deliberate dependency update.
 
 ## Security Notes
 
 - Keep `.env` and cloud credentials out of git.
 - Mount AWS credentials and GCP service account files at runtime.
 - Use read-only IAM/API tokens for cost analysis whenever possible.
-- This starter version has no deployment, reboot, Kubernetes mutation, or
-  GitLab pipeline trigger capability.
+- This starter version is intentionally read-only and cost-analysis focused.
+  It does not include infrastructure mutation or deployment automation tools.
+- Treat the Compose stack as local/development infrastructure. Review CORS,
+  authentication, exposed ports, TLS, secret storage, and Open WebUI settings
+  before using it as an internet-facing deployment.
+- Before making the repository public, run a full-history secret scan, for
+  example with Gitleaks. The included GitHub workflow runs Gitleaks on pushes
+  and pull requests.

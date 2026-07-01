@@ -21,23 +21,7 @@ logger.setLevel(logging.INFO)
 _TOOL_ACTIVITY_LABELS = {
     # ADK delegation
     "transfer_to_agent": "Routing to a specialist agent",
-    # Kubernetes analysis
-    "cluster_overview": "Checking Kubernetes cluster state",
-    "analyze_node_health": "Inspecting Kubernetes node health",
-    "analyze_namespace": "Inspecting Kubernetes namespace state",
-    "analyze_workload": "Inspecting Kubernetes workload state",
-    "find_failing_workloads": "Scanning for failing Kubernetes workloads",
-    "get_recent_events": "Reading recent Kubernetes events",
-    "inspect_configmap": "Inspecting ConfigMap metadata",
-    "list_persistent_volumes": "Listing persistent volumes",
-    "list_cluster_namespaces": "Listing cluster namespaces",
-    "list_workloads_in_cluster": "Listing Kubernetes workloads",
-    "get_workload_observability_tags": "Resolving Kubernetes observability tags",
-    "resolve_hostname_to_workload": "Resolving hostname to Kubernetes workload",
-    # GitLab / cost / actions
-    "list_recent_pipelines": "Checking recent GitLab pipelines",
-    "get_pipeline_status": "Reading GitLab pipeline status",
-    "trigger_deployment_pipeline": "Preparing GitLab deployment pipeline",
+    # Cost analysis
     "get_cost_summary": "Querying AWS Cost Explorer",
     "compare_periods": "Comparing AWS cost periods",
     "get_top_cost_drivers": "Finding AWS cost drivers",
@@ -46,13 +30,6 @@ _TOOL_ACTIVITY_LABELS = {
     "list_hetzner_resources": "Listing Hetzner Cloud resources",
     "get_hetzner_top_cost_drivers": "Finding Hetzner cost drivers",
     "get_hetzner_pricing": "Looking up Hetzner pricing",
-    "reboot_servers": "Preparing server reboot",
-    "power_cycle_servers": "Preparing server power cycle",
-    "check_recent_reboot_actions": "Checking reboot action status",
-    "list_ansible_jobs": "Reading Ansible job catalog",
-    "run_ansible_job": "Preparing Ansible pipeline job",
-    "check_ansible_job_status": "Checking Ansible pipeline status",
-    "request_approval": "Preparing approval request",
 }
 
 
