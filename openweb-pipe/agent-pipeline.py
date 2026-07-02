@@ -1,6 +1,6 @@
 """
 title: Platform Agent Pipeline
-author: platform-team
+author: Riccardo Masetti
 description: Adapter between Open WebUI and ADK runtime. It forwards messages to the ADK orchestrator and streams events back to Open WebUI in an OpenAI-compatible format.
 required_open_webui_version: 0.5.0
 requirements: httpx>=0.27.0
