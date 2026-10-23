@@ -3,6 +3,20 @@
 This repository contains a local Open WebUI stack, a dedicated Open WebUI
 Pipeline adapter, and a Google ADK multi-agent runtime for cloud cost analysis.
 
+> **Status:** Experimental, local-first reference implementation. The cloud
+> integrations are deliberately read-only, but the surrounding Compose stack is
+> not hardened for public or multi-tenant deployment.
+
+## What This Project Demonstrates
+
+- Orchestrator-mediated collaboration between specialist Google ADK agents.
+- A single conversational surface for AWS Cost Explorer and Hetzner Cloud cost
+  and inventory data.
+- Provider-independent model access through LiteLLM, using Amazon Bedrock or
+  Vertex AI.
+- Explicit read-only cloud tooling, bounded delegation, persistent ADK sessions,
+  and secret scanning in CI.
+
 The current app is read-only and cost-focused:
 
 - **Open WebUI** as the UI.
@@ -12,22 +26,18 @@ The current app is read-only and cost-focused:
   Gemini.
 - Native read-only tools for AWS Cost Explorer and Hetzner Cloud.
 
-```text
-User
- |
- v
-Open WebUI -- OpenAI-compatible --> Pipelines
-                                      |
-                                      | HTTP/SSE (/run_sse)
-                                      v
-                               ADK api_server
-                                      |
-                                      v
-                           platform_orchestrator
-                                cost router
-                                /         \
-                               v           v
-                     aws_cost_agent   hetzner_cost_agent
+## Architecture
+
+```mermaid
+flowchart LR
+    U[User] --> UI[Open WebUI]
+    UI --> P[Open WebUI Pipeline]
+    P -->|HTTP / SSE| API[ADK API server]
+    API --> O[platform_orchestrator]
+    O --> AWS[aws_cost_agent]
+    O --> HZ[hetzner_cost_agent]
+    AWS --> CE[(AWS Cost Explorer)]
+    HZ --> HC[(Hetzner Cloud API)]
 ```
 
 ## Main Entry Points
